@@ -46,12 +46,18 @@ anes_subset <- anes_subset |>
 
 dem_anger_plot <- anes_subset |>
   drop_na() |>
-  ggplot(mapping = aes(x = Dem_Anger_Value)) + geom_histogram(stat = "count", fill = "blue")
+  ggplot(mapping = aes(x = Dem_Anger_Value)) + geom_histogram(stat = "count", fill = "blue") + 
+  labs(title = "Respondent Self-Reported Anger towards 2016 Democratic Presidential Candidate",
+       x = "Frequency of feelings of anger towards Democratic presidential candidate",
+       y = "Count") 
 dem_anger_plot
 
 rep_anger_plot <- anes_subset |>
   drop_na() |>
-  ggplot(mapping = aes(x = Rep_Anger_Value)) + geom_histogram(stat = "count", fill = "red")
+  ggplot(mapping = aes(x = Rep_Anger_Value)) + geom_histogram(stat = "count", fill = "red") +
+  labs(title = "Respondent Self-Reported Anger towards 2016 Republican Presidential Candidate",
+       x = "Frequency of feelings of anger towards Republican presidential candidate",
+       y = "Count")
 rep_anger_plot
 ```
 
