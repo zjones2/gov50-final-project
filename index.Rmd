@@ -16,3 +16,42 @@ I am interested in exploring data related to the following topics: (1) Political
 ## Project Proposal
 
 Does social media use lead to hostility towards presidential candidates? In this study, I plan to examine the extent to which extended time on social media is related to feelings of anger towards Democratic and Republican presidential candidates. Given the amount of polarizing content that can be found on social media sites like Facebook and Twitter, I predict that more self-reported time on social media will be positively associated with self-reported hostility towards presidential candidates. To examine this relationship, I plan to use data from the 2016 American National Election Survey, which includes 4,271 interviews conducted prior to the 2016 presidential election in English and Spanish. The explanatory variable of interest is the number of days in the week the respondent typically used social media to learn about the presidential election. It is represented as a value from 0 to 7 (days). My outcome variables are described as the respondent's "affect" towards the Republican or Democratic presidential candidate -- specifically whether the frequency with which they reported feeling anger towards the candidate. The variable is coded with the following values: -8: Don't know, 1: Never, 2. Some of the time, 3. About half of the time, 4. Most of the time, and 5. Always. If I observe a positive correlation coefficient between the number of days spent on social media and the degree of anger expressed towards candidates, then I will have support for my hypothesis. However, if I observe that social media usage is either negatively related or unrelated to anger towards candidate, then I will lack sufficient evidence to support my hypothesis.
+
+## Loading data + data visualization
+
+```{r}
+library(tidyverse)
+library(readr)
+anes_2016 <- read_csv("~/Downloads/anes-2016.csv")
+
+anes_subset <- anes_2016 |>
+  select(V161116, V161121, V161495)
+
+anes_subset <- anes_subset |>
+  rename(Dem_Anger = V161116,
+         Rep_Anger = V161121,
+         Social_Media_Days = V161495)
+
+anes_subset <- anes_subset |>
+  mutate(Dem_Anger_Value = case_when(Dem_Anger == 1 ~ "Never",
+                                     Dem_Anger == 2 ~ "Some of the time",
+                                     Dem_Anger == 3 ~ "About half the time",
+                                     Dem_Anger == 4 ~ "Most of the time",
+                                     Dem_Anger == 5 ~ "Always") ) |>
+  mutate(Rep_Anger_Value = case_when(Rep_Anger == 1 ~ "Never",
+                                     Rep_Anger == 2 ~ "Some of the time",
+                                     Rep_Anger == 3 ~ "About half the time",
+                                     Rep_Anger == 4 ~ "Most of the time",
+                                     Rep_Anger == 5 ~ "Always") )
+
+dem_anger_plot <- anes_subset |>
+  drop_na() |>
+  ggplot(mapping = aes(x = Dem_Anger_Value)) + geom_histogram(stat = "count", fill = "blue")
+dem_anger_plot
+
+rep_anger_plot <- anes_subset |>
+  drop_na() |>
+  ggplot(mapping = aes(x = Rep_Anger_Value)) + geom_histogram(stat = "count", fill = "red")
+rep_anger_plot
+```
+
