@@ -20,13 +20,16 @@ Does social media use lead to hostility towards presidential candidates? In this
 ## Loading data + data visualization
 
 ```{r}
+# Load data
 library(tidyverse)
 library(readr)
 anes_2016 <- read_csv("~/Downloads/anes-2016.csv")
 
+# Select relevant variables
 anes_subset <- anes_2016 |>
   select(V161116, V161121, V161495)
 
+# Rename variables 
 anes_subset <- anes_subset |>
   rename(Dem_Anger = V161116,
          Rep_Anger = V161121,
@@ -44,27 +47,32 @@ anes_subset <- anes_subset |>
                                      Rep_Anger == 4 ~ "Most of the time",
                                      Rep_Anger == 5 ~ "Always") )
 
+# Turn variables into factors 
 anes_subset <- anes_subset |>
   dplyr::mutate(Dem_Anger_Value = factor(Dem_Anger_Value, 
                                     levels = c("Never", "Some of the time", "About half the time",
                                                "Most of the time", "Always"))) |>
    dplyr::mutate(Rep_Anger_Value = factor(Rep_Anger_Value, 
                                     levels = c("Never", "Some of the time", "About half the time",
-                                               "Most of the time", "Always"))) 
+                                              "Most of the time", "Always"))) 
+# Barplot: anger towards Democrats 
 dem_anger_plot <- anes_subset |>
   drop_na() |>
-  ggplot(mapping = aes(x = Dem_Anger_Value)) + geom_bar(stat = "count", fill = "blue") + 
-  labs(title = "Respondent Self-Reported Anger towards 2016 Democratic Presidential Candidate",
+  ggplot(mapping = aes(x = Dem_Anger_Value)) + geom_bar(stat = "count", fill = "dodgerblue3") + 
+  labs(title = "Respondent Self-Reported Anger Towards 2016 Democratic Presidential Candidate",
        x = "Frequency of feelings of anger towards Democratic presidential candidate",
-       y = "Count") 
+       y = "Count",
+       caption = "Source: American National Election Studies") 
 dem_anger_plot
 
+# Barplot: anger towards Republicans  
 rep_anger_plot <- anes_subset |>
   drop_na() |>
-  ggplot(mapping = aes(x = Rep_Anger_Value)) + geom_bar(stat = "count", fill = "red") +
-  labs(title = "Respondent Self-Reported Anger towards 2016 Republican Presidential Candidate",
+  ggplot(mapping = aes(x = Rep_Anger_Value)) + geom_bar(stat = "count", fill = "firebrick1") +
+  labs(title = "Respondent Self-Reported Anger Towards 2016 Republican Presidential Candidate",
        x = "Frequency of feelings of anger towards Republican presidential candidate",
-       y = "Count")
+       y = "Count",
+       caption = "Source: American National Election Studies")
 rep_anger_plot
 ```
 
