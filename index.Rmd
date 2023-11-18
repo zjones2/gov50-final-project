@@ -117,3 +117,7 @@ For exploratory purposes, I began by calculating the correlation coefficients fo
 
 I found that the intercept for the Democratic candidate is 2.59, meaning that when the Social_Media_Days variable is 0 (an individual does not get any election news from social media), the predicted self-reported anger value is between feeling angry "some of the time" and "about half of the time." For each unit increase in the number of days on social media, we can predict a small increase in the dependent variable of 0.016. The Republican candidate intercept was slightly higher, indicating that there may have been a slightly higher baseline level of anger towards them compared to the Democratic candidate. However, the effect of social media use on anger per unit increase was smaller, at just 0.012.
 
+Finally, I produced two ATE tables to identify whether there was a notable treatment effect of using social media at all. I turned the Social_Media_Days variable into a binary variable of either no use (0 days) or some use (1-7 days). Here, I again saw small magnitudes, with the ATE for the Republican candidate being 0.068 and the ATE for the Democratic candidate being 0.083. However, the slightly larger ATE for the Democratic candidate is unsurprising given the larger step increase predicted by the linear model.
+
+Overall, these findings indicate that social media use as measured in this study is not a particularly strong predictor of increased anger towards presidential candidates of either party.
+
