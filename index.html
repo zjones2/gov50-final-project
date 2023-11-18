@@ -1583,7 +1583,113 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </div>
 <p><img src="index_files/figure-html5/unnamed-chunk-1-2.png" width="624" /></p>
 </div>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<h2 id="milestone-4-add-results-from-one-analysis">Milestone 4: Add Results From One Analysis</h2>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Calculate correlation coefficient</span></span>
+<span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cor</a></span><span class='op'>(</span><span class='va'>anes_subset</span><span class='op'>$</span><span class='va'>Dem_Anger</span>, <span class='va'>anes_subset</span><span class='op'>$</span><span class='va'>Social_Media_Days</span>, use <span class='op'>=</span> <span class='st'>"pairwise"</span><span class='op'>)</span></span></code></pre>
+</div>
+<pre><code>[1] 0.03356146</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='fu'><a href='https://rdrr.io/r/stats/cor.html'>cor</a></span><span class='op'>(</span><span class='va'>anes_subset</span><span class='op'>$</span><span class='va'>Rep_Anger</span>, <span class='va'>anes_subset</span><span class='op'>$</span><span class='va'>Social_Media_Days</span>, use <span class='op'>=</span> <span class='st'>"pairwise"</span><span class='op'>)</span> </span></code></pre>
+</div>
+<pre><code>[1] 0.02689842</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Create a linear regression</span></span>
+<span><span class='va'>demfit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>Dem_Anger</span> <span class='op'>~</span> <span class='va'>Social_Media_Days</span>, data <span class='op'>=</span> <span class='va'>anes_subset</span><span class='op'>)</span></span>
+<span><span class='va'>demfit</span></span></code></pre>
+</div>
+<pre><code>
+Call:
+lm(formula = Dem_Anger ~ Social_Media_Days, data = anes_subset)
+
+Coefficients:
+      (Intercept)  Social_Media_Days  
+          2.58783            0.01595  </code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>repfit</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span><span class='va'>Rep_Anger</span> <span class='op'>~</span> <span class='va'>Social_Media_Days</span>, data <span class='op'>=</span> <span class='va'>anes_subset</span><span class='op'>)</span></span>
+<span><span class='va'>repfit</span></span></code></pre>
+</div>
+<pre><code>
+Call:
+lm(formula = Rep_Anger ~ Social_Media_Days, data = anes_subset)
+
+Coefficients:
+      (Intercept)  Social_Media_Days  
+          2.90551            0.01298  </code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='co'># Table</span></span>
+<span><span class='va'>rep_sm_ate</span> <span class='op'>&lt;-</span> <span class='va'>anes_subset</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='va'>Rep_Anger_Value</span>, <span class='va'>Social_Media_Days</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>sm_yn <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='op'>(</span><span class='va'>Social_Media_Days</span> <span class='op'>&lt;</span> <span class='fl'>1</span>, <span class='st'>"No"</span>, <span class='st'>"Yes"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>sm_yn</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>mean <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>Rep_Anger</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></span><span class='op'>(</span>names_from <span class='op'>=</span> <span class='va'>sm_yn</span>,</span>
+<span>              values_from <span class='op'>=</span> <span class='va'>mean</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>ATE <span class='op'>=</span> <span class='va'>`Yes`</span> <span class='op'>-</span> <span class='va'>`No`</span><span class='op'>)</span> </span>
+<span>  <span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span><span class='va'>rep_sm_ate</span><span class='op'>)</span></span></code></pre>
+</div>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">No</th>
+<th style="text-align: right;">Yes</th>
+<th style="text-align: right;">ATE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2.908411</td>
+<td style="text-align: right;">2.976219</td>
+<td style="text-align: right;">0.0678076</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>rep_sm_ate</span></span></code></pre>
+</div>
+<pre><code># A tibble: 1 × 3
+     No   Yes    ATE
+  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1  2.91  2.98 0.0678</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>dem_sm_ate</span> <span class='op'>&lt;-</span> <span class='va'>anes_subset</span> <span class='op'>|&gt;</span> </span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/drop_na.html'>drop_na</a></span><span class='op'>(</span><span class='va'>Dem_Anger</span>, <span class='va'>Social_Media_Days</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>sm_yn <span class='op'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/if_else.html'>if_else</a></span><span class='op'>(</span><span class='va'>Social_Media_Days</span> <span class='op'>&lt;</span> <span class='fl'>1</span>, <span class='st'>"No"</span>, <span class='st'>"Yes"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/group_by.html'>group_by</a></span><span class='op'>(</span><span class='va'>sm_yn</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/summarise.html'>summarize</a></span><span class='op'>(</span>mean <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>Dem_Anger</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://tidyr.tidyverse.org/reference/pivot_wider.html'>pivot_wider</a></span><span class='op'>(</span>names_from <span class='op'>=</span> <span class='va'>sm_yn</span>,</span>
+<span>              values_from <span class='op'>=</span> <span class='va'>mean</span><span class='op'>)</span> <span class='op'>|&gt;</span></span>
+<span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span><span class='op'>(</span>ATE <span class='op'>=</span> <span class='va'>`Yes`</span> <span class='op'>-</span> <span class='va'>`No`</span><span class='op'>)</span> </span>
+<span>  <span class='fu'>knitr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/knitr/man/kable.html'>kable</a></span><span class='op'>(</span><span class='va'>dem_sm_ate</span><span class='op'>)</span></span></code></pre>
+</div>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">No</th>
+<th style="text-align: right;">Yes</th>
+<th style="text-align: right;">ATE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2.591418</td>
+<td style="text-align: right;">2.674732</td>
+<td style="text-align: right;">0.0833143</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span><span class='va'>dem_sm_ate</span></span></code></pre>
+</div>
+<pre><code># A tibble: 1 × 3
+     No   Yes    ATE
+  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1  2.59  2.67 0.0833</code></pre>
+</div>
+<p>For exploratory purposes, I began by calculating the correlation coefficients for social media use and feelings towards Republican and Democratic candidates. I discovered a weak positive correlation between social media use and reported anger. For the Democratic candidate, the correlation coefficient is 0.034, while for the Republican candidate, the correlation coefficient is 0.027. However, I did not think that this gave me enough insight into the nature of the linear relationship, so I decided to produce a linear regression.</p>
+<p>I found that the intercept for the Democratic candidate is 2.59, meaning that when the Social_Media_Days variable is 0 (an individual does not get any election news from social media), the predicted self-reported anger value is between feeling angry “some of the time” and “about half of the time.” For each unit increase in the number of days on social media, we can predict a small increase in the dependent variable of 0.016. The Republican candidate intercept was slightly higher, indicating that there may have been a slightly higher baseline level of anger towards them compared to the Democratic candidate. However, the effect of social media use on anger per unit increase was smaller, at just 0.012.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
