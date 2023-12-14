@@ -180,7 +180,7 @@ modelsummary::modelsummary(newfit,
 
 ## Conclusion
 
-Overall, these findings indicate that social media use as measured in this study is not a particularly strong predictor of increased anger towards presidential candidates of either party, thus contradicting my hypothesis. However, by incorporating other factors, including the respondent's feelings about the candidate's temperament and the direction of the country, it is possible to create a more predictive model.
+Overall, these findings indicate that social media use as measured in this study is not a particularly strong predictor of increased anger towards presidential candidates of either party, thus contradicting my hypothesis. However, by incorporating other factors, including the respondent's feelings about the candidate's temperament and the direction of the country, it is possible to create a more predictive model.  
 
 One more note is that I would be hesitant to conclude a causal relationship based on the analysis conducted. In addition to the fact that this was an observational study that did not employ random assignment, there is a key limitation in the way that the independent variable was defined. Because it was limited to using social media to learn about the presidential election, it may have excluded respondents who did use social media to an extent, but did not recall using it specifically to learn about the presidential election. Additionally, confounding factors like age, education, and previous political affiliation may have impacted the results, though I tried to incorporate some of these factors in the final linear regression. Fortunately, missingness did not appear to be a significant problem in this dataset (the drop_na function removed 60 rows).
 
