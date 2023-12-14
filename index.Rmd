@@ -1,7 +1,7 @@
 ---
 title: "Gov 50 Final Project"
 author: "Zoree Jones"
-description: "Interesting analysis on intractable challenges."
+description: "Thanks for a great class! :)"
 output:
   distill::distill_article:
     self_contained: false
@@ -9,15 +9,33 @@ output:
 
 
 
-## Milestone 1: Project Thoughts
+## Introduction
 
-I am interested in exploring data related to the following topics: (1) Political discourse on social media (particularly as it relates to bias and extremism; (2) international development (e.g., progress towards UN SDGs, intranational inequality); (3) international flows of money (i.e. microfinance, remittances); and (4) legislative productivity. 
+Understanding political polarization and its causes is of central interest to many political scientists. Defined as …Within the last few decades, polarization has risen sharply among Americans – a Pew Research Center poll conducted in the run-up to the 2020 presidential election reported that 90 percent of both Trump and Biden supporters believed that if the other candidate won, it would cause “lasting harm” to the country.  [Sentence about democratic threat of polarization]. 
+
+In an aim to identify what distinguishes this period of American polarization from past historical moments, some observers have pointed to social media platforms as a key factor. One meta-analysis of the relevant social science literature conducted by the Brookings Institution concluded that while “platforms like Facebook, YouTube, and Twitter likely are not the root causes of political polarization, they do exacerbate it.” 
+
+In light of the increased attention on social media platforms as a contributor to polarization, I was interested in examining whether it was possible to draw a direct association between social media and feelings of animus. Using data from the 2016 American National Election Studies time series survey, I sought to answer the following research question: Is the use of social media to learn about presidential elections positively associated with self-reported feelings of hostility towards presidential candidates?
+
+Given the amount of polarizing content that can be found on social media sites like Facebook and Twitter, I predicted that more self-reported use of social media to learn about presidential elections would be positively associated with self-reported hostility towards presidential candidates.
+
 
 ## Milestone 2: Project Proposal
 
 Does social media use lead to hostility towards presidential candidates? In this study, I plan to examine the extent to which extended time on social media is related to feelings of anger towards Democratic and Republican presidential candidates. Given the amount of polarizing content that can be found on social media sites like Facebook and Twitter, I predict that more self-reported time on social media will be positively associated with self-reported hostility towards presidential candidates. To examine this relationship, I plan to use data from the 2016 American National Election Survey, which includes 4,271 interviews conducted prior to the 2016 presidential election in English and Spanish. The explanatory variable of interest is the number of days in the week the respondent typically used social media to learn about the presidential election. It is represented as a value from 0 to 7 (days). My outcome variables are described as the respondent's "affect" towards the Republican or Democratic presidential candidate -- specifically whether the frequency with which they reported feeling anger towards the candidate. The variable is coded with the following values: -8: Don't know, 1: Never, 2. Some of the time, 3. About half of the time, 4. Most of the time, and 5. Always. If I observe a positive correlation coefficient between the number of days spent on social media and the degree of anger expressed towards candidates, then I will have support for my hypothesis. However, if I observe that social media usage is either negatively related or unrelated to anger towards candidate, then I will lack sufficient evidence to support my hypothesis.
 
-## Milestone 3: Loading Data + Data Visualization
+## Data 
+
+The data for this analysis came from the 2016 American National Election Studies time series survey. The survey consisted of a pre-election questionnaire administered between September 7 and November 7, 2016 and a post-election questionnaire administered between November 9 and January 8, 2017. The survey reached a final sample size of 4,271. The target population for the study was the 224.1 million U.S. citizens who are age 18 or older.
+
+The key dependent variables for this analysis are defined as the respondent’s “affect” towards the Republican or Democratic presidential candidate – specifically whether the frequency with which they reported feeling anger towards the candidate. The variables are coded with the following values: -8: Don’t know, 1: Never, 2. Some of the time, 3. About half of the time, 4. Most of the time, and 5. Always. The independent/explanatory variable of interest is the number of days in the week the respondent typically used social media to learn about the presidential election. It is represented as a value from 0 to 7 (days).
+
+The following bar charts represent the distribution of the dependent variable (how often they reported feeling angry towards the Democratic and Republican presidential candidate).
+
+The remainder of my analysis proceeded in the following way: 
+(1) First, I calculated the correlation coefficient to get a sense of the direction of the relationship. 
+(2) Next, I produced a series of linear regressions. The first two regressions captured the predicted change in the dependent variable given a one unit increase in the number of days on social media.The second two regressions captured the predicted change in the dependent variable based on any use of social media using the modified binary sm_yn variable, which captured whether or not a respondent used social media to learn about the presidential election at all.
+
 
 ```{r}
 # Load data
@@ -76,48 +94,73 @@ rep_anger_plot <- anes_subset |>
 rep_anger_plot
 ```
 
-## Milestone 4: Add Results From One Analysis
+## Results 
 ```{r}
+
+# Add binary variable for social media use 
+anes_subset <- anes_subset |>
+  mutate(sm_yn = if_else(Social_Media_Days < 1, "No", "Yes"))
+         
 # Calculate correlation coefficient
 cor(anes_subset$Dem_Anger, anes_subset$Social_Media_Days, use = "pairwise")
 cor(anes_subset$Rep_Anger, anes_subset$Social_Media_Days, use = "pairwise") 
 
-# Create a linear regression
+# Create a linear regression (social media as a categorical variable)
 demfit <- lm(Dem_Anger ~ Social_Media_Days, data = anes_subset)
 demfit
+modelsummary::modelsummary(demfit,
+                           statistic = c("s.e. = {std.error}",
+                                         "p = {p.value}"),
+                           gof_map = c("nobs", "r.squared", "adj.r.squared"))
+
 repfit <- lm(Rep_Anger ~ Social_Media_Days, data = anes_subset)
-repfit
+modelsummary::modelsummary(repfit,
+                           statistic = c("s.e. = {std.error}",
+                                         "p = {p.value}"),
+                           gof_map = c("nobs", "r.squared", "adj.r.squared"))
 
-# Table
-rep_sm_ate <- anes_subset |> 
-  drop_na(Rep_Anger_Value, Social_Media_Days) |>
-  mutate(sm_yn = if_else(Social_Media_Days < 1, "No", "Yes")) |>
-  group_by(sm_yn) |>
-  summarize(mean = mean(Rep_Anger)) |>
-  pivot_wider(names_from = sm_yn,
-              values_from = mean) |>
-  mutate(ATE = `Yes` - `No`) 
-  knitr::kable(rep_sm_ate)
-rep_sm_ate
+# Create a linear regression (social media as a binary variable)
+demfit2 <- lm(Dem_Anger ~ sm_yn, data = anes_subset)
+demfit2
 
-dem_sm_ate <- anes_subset |> 
-  drop_na(Dem_Anger, Social_Media_Days) |>
-  mutate(sm_yn = if_else(Social_Media_Days < 1, "No", "Yes")) |>
-  group_by(sm_yn) |>
-  summarize(mean = mean(Dem_Anger)) |>
-  pivot_wider(names_from = sm_yn,
-              values_from = mean) |>
-  mutate(ATE = `Yes` - `No`) 
-  knitr::kable(dem_sm_ate)
-dem_sm_ate
-  
+repfit2 <- lm(Rep_Anger ~ sm_yn, data = anes_subset)
+repfit2
+
+# Calculate R^2 for initial models 
+demfitsum <- summary(demfit)
+demfitsum$r.squared
+
+repfitsum <- summary(repfit)
+repfitsum$r.squared
+
+# Create additional linear regressions 
+newfit <- lm(V161116 ~ V161495 + V161081 + V161162 + V161270 + V161169, data = anes_2016)
+var_labels <- c(
+  "V161116" = "Rep_Anger_Value",
+  "V161495" = "Social_Media_Days",
+  "V161081" = "Right vs. wrong track",
+  "V161162" = "Dem. candidate is honest",
+  "V161270" = "Highest education level",
+  "V161169" = "Dem. candidate is even tempered"
+)
+
+modelsummary::modelsummary(newfit,
+                           statistic = c("s.e. = {std.error}",
+                                         "p = {p.value}"),
+                           coef_map = var_labels,
+                           gof_map = c("nobs", "r.squared", "adj.r.squared"))
+
 ```
 
 For exploratory purposes, I began by calculating the correlation coefficients for social media use and feelings towards Republican and Democratic candidates. I discovered a weak positive correlation between social media use and reported anger. For the Democratic candidate, the correlation coefficient is 0.034, while for the Republican candidate, the correlation coefficient is 0.027. However, I did not think that this gave me enough insight into the nature of the linear relationship, so I decided to produce a linear regression. 
 
-I found that the intercept for the Democratic candidate is 2.59, meaning that when the Social_Media_Days variable is 0 (an individual does not get any election news from social media), the predicted self-reported anger value is between feeling angry "some of the time" and "about half of the time." For each unit increase in the number of days on social media, we can predict a small increase in the dependent variable of 0.016. The Republican candidate intercept was slightly higher, indicating that there may have been a slightly higher baseline level of anger towards them compared to the Democratic candidate. However, the effect of social media use on anger per unit increase was smaller, at just 0.012.
+I found that the intercept for the Democratic candidate is 2.59, meaning that when the Social_Media_Days variable is 0 (an individual does not get any election news from social media), the predicted self-reported anger value is between feeling angry “some of the time” and “about half of the time.” For each unit increase in the number of days on social media, we can predict a small increase in the dependent variable of 0.016. The Republican candidate intercept was slightly higher at 2.91, indicating that there may have been a slightly higher baseline level of anger towards them compared to the Democratic candidate. However, the effect of social media use on anger per unit increase was smaller, at just 0.013.
 
-Finally, I produced two ATE tables to identify whether there was a notable treatment effect of using social media at all. I turned the Social_Media_Days variable into a binary variable of either no use (0 days) or some use (1-7 days). Here, I again saw small magnitudes, with the ATE for the Republican candidate being 0.068 and the ATE for the Democratic candidate being 0.083. However, the slightly larger ATE for the Democratic candidate is unsurprising given the larger step increase predicted by the linear model.
+To identify whether there was a notable treatment effect of using social media at all, I turned the Social_Media_Days variable into a binary variable called sm_yn of either no use (0 days) or some use (1-7 days). After doing so, I found that the intercept for the Democratic candidate was also 2.59. Use of social media predicted a small (0.08) point increase in anger value. The Republican candidate intercept was 2.91, and the effect of social media use on anger was 0.07.
 
-Overall, these findings indicate that social media use as measured in this study is not a particularly strong predictor of increased anger towards presidential candidates of either party.
+Next, I examined the explanatory power of the regressions. The first regression "demfit" has an R^2 of 0.001. The second regression "repfit" also has an R^2 of 0.001. Both values are extremely small, indicating that the vast majority of the variance observed in the dependent variable (anger) cannot be explained by variance in amount of time on news-related social media.
+
+Finally, in an attempt to develop a model with better explanatory power, I selected the following additional variables: (1) Are things in the country on the right track? (binary variable - right vs. wrong track); (2) Is the democratic candidate honest? (1-5 scale); (3) Highest level of education; (4) Is the democratic candidate even-tempered? (1-5 scale). This model appears to be better equipped to explain variation in the dependent variable, as it has an R^2 of 0.495.
+
+Overall, these findings indicate that social media use as measured in this study is not a particularly strong predictor of increased anger towards presidential candidates of either party. 
 
